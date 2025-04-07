@@ -7,6 +7,7 @@ import org.example.graph.Graph
 import org.example.graph.GraphLayout
 import javax.swing.JPanel
 import java.awt.BorderLayout
+import java.awt.Graphics
 
 class DiagramPanel : JPanel() {
     private val graphComponent: mxGraphComponent
@@ -18,6 +19,17 @@ class DiagramPanel : JPanel() {
         graphComponent = mxGraphComponent(jGraph)
         add(graphComponent, BorderLayout.CENTER)
     }
+
+    fun clear() {
+        jGraph.model.beginUpdate()
+        try {
+            jGraph.removeCells(jGraph.getChildCells(jGraph.defaultParent, true, true))
+        } finally {
+            jGraph.model.endUpdate()
+        }
+        repaint()
+    }
+
 
     fun renderGraph(graph: Graph, layout: GraphLayout, enabledVertices: Set<String>) {
         val parent = jGraph.defaultParent
@@ -54,4 +66,9 @@ class DiagramPanel : JPanel() {
         val layout = mxCircleLayout(jGraph)
         layout.execute(jGraph.defaultParent)
     }
+    override fun paintComponent(g: Graphics) {
+        super.paintComponent(g)
+        // Custom painting code
+    }
+
 }

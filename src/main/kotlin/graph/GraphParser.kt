@@ -17,13 +17,16 @@ class GraphParser {
         return graph
     }
 
-    fun parseEdges(graph: Graph, input: String) {
+    fun parseEdges(graph: Graph, input: String): List<Pair<String, String>> {
+        val edges = mutableListOf<Pair<String, String>>()
         val lines = input.lines()
         for (line in lines) {
-            val parts = line.split(" ")
+            val parts = line.split("-")
             if (parts.size == 2) {
+                edges.add(Pair(parts[0], parts[1]))
                 graph.addEdge(parts[0], parts[1])
             }
         }
+        return edges
     }
 }

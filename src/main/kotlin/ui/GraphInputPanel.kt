@@ -18,11 +18,12 @@ class GraphInputPanel : JPanel() {
     private val parseButton: JButton = JButton("Parse Graph")
     private val addEdgesButton: JButton = JButton("Add Edges")
     private val disableButton: JButton = JButton("Disable")
+    private val clearButton: JButton = JButton("Clear")
     private val graphParser: GraphParser = GraphParser()
     private val diagramPanel: DiagramPanel = DiagramPanel()
-    private val vertexListModel: VertexListModel = VertexListModel()
-    private val vertexList: JList<String> = JList(vertexListModel)
-    private var graph: Graph = Graph()
+    val vertexListModel: VertexListModel = VertexListModel()
+    val vertexList: JList<String> = JList(vertexListModel)
+    var graph: Graph = Graph()
 
     init {
         layout = BorderLayout()
@@ -31,6 +32,7 @@ class GraphInputPanel : JPanel() {
         val buttonPanel = JPanel()
         buttonPanel.add(parseButton)
         buttonPanel.add(addEdgesButton)
+        buttonPanel.add(clearButton)
         inputPanel.add(buttonPanel, BorderLayout.SOUTH)
         add(inputPanel, BorderLayout.NORTH)
         add(diagramPanel, BorderLayout.CENTER)
@@ -57,31 +59,50 @@ class GraphInputPanel : JPanel() {
         disableButton.addActionListener(ActionListener {
             disableSelectedVertices()
         })
+
+        clearButton.addActionListener(ActionListener {
+            clearGraph()
+        })
     }
 
     private fun getGraphInput(): String {
         return textArea.text
     }
 
-    private fun parseGraphInput(input: String) {
+    fun parseGraphInput(input: String) {
         println("Parsing graph input: $input")
         graph = Graph() // Reset the graph
         graph = graphParser.parse(input)
         println("Parsed graph: $graph")
         val layout = GraphLayout()
         layout.layoutGraph(graph)
-        vertexListModel.setVertices(graph.getNodes().toList())
+        val enabledVertices = graph.getNodes().filter { vertexListModel.isEnabled(it) }
+        vertexListModel.setVertices(enabledVertices)
         updateDiagram()
     }
 
-    private fun addEdgesToGraph(input: String) {
+    fun addEdgesToGraph(input: String) {
         println("Adding edges to graph: $input")
-        graphParser.parseEdges(graph, input)
+        val edges = graphParser.parseEdges(graph, input).toList()
+        for (edge in edges) {
+            val from = edge.first
+            val to = edge.second
+            if (!vertexListModel.isEnabled(from) || !vertexListModel.isEnabled(to)) {
+                continue
+            }
+            if (!graph.containsNode(from)) {
+                graph.addNode(from)
+            }
+            if (!graph.containsNode(to)) {
+                graph.addNode(to)
+            }
+            graph.addEdge(from, to)
+        }
         println("Updated graph: $graph")
         updateDiagram()
     }
 
-    private fun disableSelectedVertices() {
+    fun disableSelectedVertices() {
         val selectedVertices = vertexList.selectedValuesList
         for (vertex in selectedVertices) {
             vertexListModel.setEnabled(vertex, false)
@@ -89,7 +110,14 @@ class GraphInputPanel : JPanel() {
         updateDiagram()
     }
 
+    private fun clearGraph() {
+        graph = Graph() // Reset the graph
+        vertexListModel.setVertices(emptyList())
+        updateDiagram()
+    }
+
     private fun updateDiagram() {
+        diagramPanel.clear() // Clear the diagram panel
         val layout = GraphLayout()
         layout.layoutGraph(graph)
         diagramPanel.renderGraph(graph, layout, vertexListModel.getEnabledVertices())

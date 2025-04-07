@@ -15,6 +15,11 @@ class Graph {
         edges.computeIfAbsent(from) { mutableSetOf() }.add(to)
     }
 
+    fun containsNode(node: String): Boolean {
+        return nodes.contains(node)
+    }
+
+
     fun getNodes(): Set<String> = nodes
 
     fun getEdges(): Map<String, Set<String>> = edges
