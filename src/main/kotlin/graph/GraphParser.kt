@@ -8,9 +8,12 @@ class GraphParser {
             val parts = line.split("-")
             if (parts.size == 1) {
                 graph.addNode(parts[0])
+                graph.setEnabled(parts[0], true)
             } else if (parts.size == 2) {
                 graph.addNode(parts[0])
+                graph.setEnabled(parts[0], true)
                 graph.addNode(parts[1])
+                graph.setEnabled(parts[1], true)
                 graph.addEdge(parts[0], parts[1])
             }
         }
@@ -25,6 +28,8 @@ class GraphParser {
             if (parts.size == 2) {
                 edges.add(Pair(parts[0], parts[1]))
                 graph.addEdge(parts[0], parts[1])
+                graph.setEnabled(parts[0], true)
+                graph.setEnabled(parts[1], true)
             }
         }
         return edges

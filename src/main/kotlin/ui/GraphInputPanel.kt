@@ -120,6 +120,6 @@ class GraphInputPanel : JPanel() {
         diagramPanel.clear() // Clear the diagram panel
         val layout = GraphLayout()
         layout.layoutGraph(graph)
-        diagramPanel.renderGraph(graph, layout, vertexListModel.getEnabledVertices())
+        diagramPanel.renderGraph(graph, layout, graph.getEnabledNodes().keys)
     }
 }
